@@ -1,6 +1,27 @@
 Julia v0.5.0 Release Notes
 ==========================
 
+Along with a long list of language features and performance
+improvements listed below, this Julia release includes:
+
+   * The [Julia debugger](https://github.com/Keno/Gallium.jl). Install
+     it with `Pkg.add("Gallium")`, and the debugger
+     documentation](https://github.com/Keno/Gallium.jl#gallium) should
+     get you going. Also, do see the [JuliaCon
+     talk](https://www.youtube.com/watch?v=e6-hcOHO0tc&list=PLP8iPy9hna6SQPwZUDtAM59-wPzCPyD_S&index=5).
+
+   * The [Juno IDE](http://junolab.org) has matured significantly, and
+     also includes support for plotting and debugging.
+
+   * Experimental support for
+     [multi-threading](http://docs.julialang.org/en/latest/manual/parallel-computing/#multi-threading-experimental). This
+     makes it easy to parallelize loops with independent iterations in
+     a common address space with the `@threads` macro.
+
+   * A convenient C++ FFI in
+     [Cxx.jl](https://github.com/Keno/Cxx.jl). Using it requires
+     building Julia with some additional build flags that will build clang along with llvm.
+
 New language features
 ---------------------
 
@@ -45,6 +66,8 @@ New language features
     broadcasting of dot operators in Julia 0.6 ([#16285]).  Explicitly qualified
     operator names like `Base.≤` should now use `Base.:≤` (prefixed by `@compat`
     if you need 0.4 compatibility via the `Compat` package).
+
+  * Experimental support for [multi-threading](http://docs.julialang.org/en/latest/manual/parallel-computing/#multi-threading-experimental).
 
 New architectures
 -----------------
