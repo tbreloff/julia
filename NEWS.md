@@ -276,6 +276,8 @@ Library improvements
 
   * File handling:
 
+    * The `open` function now respects `umask` on UNIX when creating files ([#16466], [#16502]).
+
     * A new function `walkdir()` returns an iterator that walks the directory tree of a directory. ([#1765])
 
        ```
