@@ -727,6 +727,12 @@ function setup_interface(repl::LineEditREPL; hascolor = repl.hascolor, extra_rep
         on_enter = return_callback)
 
     # Setup help mode
+    help_ondone = x -> begin
+        if startswith(x, "help?> ")
+            x = x[8:end]
+        end
+        Docs.helpmode(x)
+    end
     help_mode = Prompt("help?> ",
         prompt_prefix = hascolor ? repl.help_color : "",
         prompt_suffix = hascolor ?
@@ -734,9 +740,15 @@ function setup_interface(repl::LineEditREPL; hascolor = repl.hascolor, extra_rep
         keymap_func_data = repl,
         complete = replc,
         # When we're done transform the entered line into a call to help("$line")
-        on_done = respond(Docs.helpmode, repl, julia_prompt))
+        on_done = respond(help_ondone, repl, julia_prompt))
 
     # Set up shell mode
+    shell_ondone = x -> begin
+        if startswith(x, "shell> ")
+            x = x[8:end]
+        end
+        Expr(:call, :(Base.repl_cmd), macroexpand(Expr(:macrocall, Symbol("@cmd"), x)), outstream(repl))
+    end
     shell_mode = Prompt("shell> ";
         prompt_prefix = hascolor ? repl.shell_color : "",
         prompt_suffix = hascolor ?
@@ -746,9 +758,7 @@ function setup_interface(repl::LineEditREPL; hascolor = repl.hascolor, extra_rep
         # Transform "foo bar baz" into `foo bar baz` (shell quoting)
         # and pass into Base.repl_cmd for processing (handles `ls` and `cd`
         # special)
-        on_done = respond(repl, julia_prompt) do line
-            Expr(:call, :(Base.repl_cmd), macroexpand(Expr(:macrocall, Symbol("@cmd"),line)), outstream(repl))
-        end)
+        on_done = respond(shell_ondone, repl, julia_prompt))
 
 
     ################################# Stage II #############################
@@ -775,7 +785,13 @@ function setup_interface(repl::LineEditREPL; hascolor = repl.hascolor, extra_rep
     shell_mode.hist = hp
     help_mode.hist = hp
 
-    julia_prompt.on_done = respond(x->Base.parse_input_line(x,filename=repl_filename(repl,hp)), repl, julia_prompt)
+    function julia_ondone(x)
+        if startswith(x, "julia> ")
+            x = x[8:end]
+        end
+        Base.parse_input_line(x,filename=repl_filename(repl,hp))
+    end
+    julia_prompt.on_done = respond(julia_ondone, repl, julia_prompt)
 
 
     search_prompt, skeymap = LineEdit.setup_search_keymap(hp)
